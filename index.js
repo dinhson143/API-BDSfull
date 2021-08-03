@@ -47,6 +47,6 @@ app.use('/api/Lich', LichRouter)
 app.use('/api/Get', GetRouter)
 
 
-const PORT = 5000
+const PORT = process.env.PORT || 2000;
 
 app.listen(PORT, () => console.log(`Server start on port ${PORT}`))
