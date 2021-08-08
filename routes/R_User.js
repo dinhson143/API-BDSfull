@@ -3,6 +3,7 @@ const router = express.Router()
 
 const User = require('../models/User')
 const UserIF = require('../models/UserInfor')
+const verifyToken = require('../middleware/auth')
 
 // .populate({ path: 'Product', select: ['Title', 'Photo'] });
 // .populate('Product', 'Title')
@@ -20,7 +21,7 @@ router.get('/', async (req, res) => {
     }
 })
 // get theo id
-router.get('/:id', async (req, res) => {
+router.get('/:id',verifyToken, async (req, res) => {
     try {
         const user = await User.find({ Email: req.params.id }).populate({ path: 'UserInfor' });
         if (!user) throw Error("No items");

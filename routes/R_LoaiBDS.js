@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router()
+const jwt = require('jsonwebtoken')
 
 const LoaiBDS = require('../models/LoaiBDS')
+const verifyToken = require('../middleware/auth')
 
 
 //get all
@@ -36,8 +38,10 @@ router.post('/', async (req, res) => {
     const newLoaiBDS = new LoaiBDS(req.body);
     try {
         const loaiBDS = await newLoaiBDS.save();
+        // const accessToken = jwt.sign({ loaiBDS: newLoaiBDS._id }, process.env.ACESS_TOKEN_SECRET) 
         if (!loaiBDS) throw Error("Something went wrong Loai BDS");
-        res.status(200).json(loaiBDS);
+         res.status(200).json(loaiBDS);
+        // res.json({ success: true, message: "Tạo Thành Công Loại BDS" ,accessToken: accessToken})
     }
     catch (err) {
         res.status(400).json({ msg: err })
