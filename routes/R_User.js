@@ -3,6 +3,8 @@ const router = express.Router()
 
 const User = require('../models/User')
 const UserIF = require('../models/UserInfor')
+const argon2 = require('argon2');
+const verifyToken = require('../middleware/auth')
 
 // .populate({ path: 'Product', select: ['Title', 'Photo'] });
 // .populate('Product', 'Title')
@@ -20,7 +22,7 @@ router.get('/', async (req, res) => {
     }
 })
 // get theo id
-router.get('/:id', async (req, res) => {
+router.get('/:id',verifyToken, async (req, res) => {
     try {
         const user = await User.find({ Email: req.params.id }).populate({ path: 'UserInfor' });
         if (!user) throw Error("No items");
@@ -37,6 +39,7 @@ router.get('/:id', async (req, res) => {
 // api/user/:id
 router.put('/:id', async (req, res) => {
     const { Phone, Address, Name, Role, Email, Password } = req.body
+    const hashedPassword = await argon2.hash(Password);
     try {
         const lsp = await User.findOneAndUpdate({ _id: req.params.id }, req.body)
         if (!lsp) throw Error("No Item To Update");

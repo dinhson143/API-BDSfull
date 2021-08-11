@@ -20,10 +20,10 @@ router.post('/register', async (req, res) => {
         if (user)
             return res.status(400).json({ success: false, message: " Email is use" })
         // All good
-        // const hashedPassword = await argon2.hash(Password);
+        const hashedPassword = await argon2.hash(Password);
         const newUserInfo = new UserInfor({ Phone, Address, Name, Role })
         await newUserInfo.save();
-        const newUser = new User({ Email, Password: Password, UserInfor: newUserInfo._id })
+        const newUser = new User({ Email, Password: hashedPassword, UserInfor: newUserInfo._id })
         await newUser.save();
 
         // Return Token
@@ -53,21 +53,27 @@ router.post('/login', async (req, res) => {
 
     try {
         //check for existing user
-        // const user = await User.findOne({ Email, Password})
-        // if (!user)
-        //     return res.status(400).json({ success: false, message: "Incorect Email or Password" })
+        const user = await User.findOne({ Email})
+        if (!user)
+            return res.status(400).json({ success: false, message: "Incorect Email" })
 
         // //Email found
-        // // const passwordValid = await argon2.verify(user.password, Password)       
-        // if (Password != user.Password)
-        //     return res.status(400).json({ success: false, message: "Incorect Email or Password" })
-        const user = await User.findOne({ Email, Password }).populate({ path: 'UserInfor' });
-        if (!user)
+        const passwordValid = await argon2.verify(user.Password, Password)       
+        if (!passwordValid)
             return res.status(400).json({ success: false, message: "Incorect Email or Password" })
+
+
+
+
+        // const user = await User.findOne({ Email, Password }).populate({ path: 'UserInfor' });
+        // if (!user)
+        //     return res.status(400).json({ success: false, message: "Incorect Email or Password" })
+        
+        const accessToken = jwt.sign({ userId: user._id }, process.env.ACESS_TOKEN_SECRET)
         res.json({
             success: true,
             message: "Login thành công",
-            user
+            accessToken
         })
     } catch (error) {
         console.log(error);
